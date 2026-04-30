@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">Security Guard</string>
+    <string name="stop_ring">Stop Ringing</string>
+    <string name="accessibility_service_description">Automates security settings activation via SMS commands.</string>
+    <string name="click_to_remove"> (Click to remove)</string>
+    <string name="number_list_item">   • %s (Click to remove)</string>
+    <string name="security_settings">Security Settings</string>
+    <string name="authorized_numbers">Authorized Numbers</string>
+    <string name="enable_accessibility">Enable Accessibility</string>
+    <string name="command_history">Command History</string>
+    <string name="save_code">Save Code</string>
+    <string name="add_number">Add Number</string>
+</resources>
