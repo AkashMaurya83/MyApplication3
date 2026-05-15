@@ -2,6 +2,7 @@ import org.gradle.kotlin.dsl.implementation
 
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -40,6 +41,7 @@ android {
 dependencies {
     implementation(libs.activity.ktx)
     implementation(libs.appcompat)
+    implementation(libs.camera.camera2.pipe)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
@@ -51,4 +53,6 @@ dependencies {
     implementation ( "androidx.camera:camera-camera2:1.3.4")
     implementation ("androidx.camera:camera-lifecycle:1.3.4")
     implementation ("androidx.camera:camera-view:1.3.4")
+    implementation("com.google.firebase:firebase-storage:21.0.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

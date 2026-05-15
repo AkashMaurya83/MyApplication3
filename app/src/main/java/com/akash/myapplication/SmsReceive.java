@@ -20,7 +20,7 @@ import android.widget.Toast;
 public class SmsReceive extends BroadcastReceiver {
     public static Ringtone ring;
 
-    @SuppressLint("UnsafeProtectedBroadcastReceiver")
+    @SuppressLint({"UnsafeProtectedBroadcastReceiver", "NewApi"})
     @Override
     public void onReceive(Context context, Intent intent) {
         SharedPreferences sp = context.getSharedPreferences("MyPref", Context.MODE_PRIVATE);
@@ -78,80 +78,70 @@ public class SmsReceive extends BroadcastReceiver {
                             try {
                                 SmsManager smsManager = context.getSystemService(SmsManager.class);
                                 smsManager.sendTextMessage(sender, null, "Mobile is ringing", null, null);
-                            } catch (Exception e) {}
+                            } catch (Exception e) {
+                            }
                         }
                     }
 
                     // 3. Photo Command (Front Camera)
-                    if (msg.equalsIgnoreCase(code + " Photo")) {
-                        sp.edit().putLong("LastCommandTime", System.currentTimeMillis()).apply();
-                        Intent intentPic = new Intent(context, CameraService.class);
-                        intentPic.putExtra("sender", sender);
-                        intentPic.putExtra("back_camera", false);
-                        context.startService(intentPic);
-                        Toast.makeText(context, "Front Photo started", Toast.LENGTH_SHORT).show();
-                    }
 
-                    // 3b. Back Photo Command
-                    if (msg.equalsIgnoreCase(code + " Photo Back")) {
-                        sp.edit().putLong("LastCommandTime", System.currentTimeMillis()).apply();
-                        Intent intentPic = new Intent(context, CameraService.class);
-                        intentPic.putExtra("sender", sender);
-                        intentPic.putExtra("back_camera", true);
-                        context.startService(intentPic);
-                        Toast.makeText(context, "Back Photo started", Toast.LENGTH_SHORT).show();
+                    if (msg.trim().equalsIgnoreCase(code + "camera back")) {
+                        Intent i = new Intent(context, CameraService.class);
+                        abortBroadcast();
+                        i.putExtra("sender", sender);
+                        i.putExtra("which", "back");
+                        context.startForegroundService(i);
                     }
+                    // अगर "camera front" आया
+                    else if (msg.trim().equalsIgnoreCase(code + "camera front")) {
+                        abortBroadcast();
+                        Intent i = new Intent(context, CameraService.class);
+                        i.putExtra("sender", sender);
+                        i.putExtra("which", "front"); // <--- बस ये "front" लिखा
+                        context.startForegroundService(i);
+                    }
+                    // ... पहले का camera back/front वाला कोड ऊपर रहेगा ...
 
-                    // 4. Location On Command (Accessibility)
-                    if (msg.equalsIgnoreCase(code + " Location On")) {
-                        sp.edit().putLong("LastCommandTime", System.currentTimeMillis()).apply();
-                        LocationManager lm = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-                        boolean gps_enabled = false;
+                    // 3. Mobile Data On (Accessibility से अपने आप ऑन होगा)
+                    else if (msg.trim().equalsIgnoreCase("data on")) {
+                        abortBroadcast();
+
+                        // Accessibility service को बताओ कि "data" वाला button दबाना है
+                        ToggleAccessibilityService.ACTION = "data";
+
                         try {
-                            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-                        } catch (Exception e) {}
-
-                        if (!gps_enabled) {
-                            // Focus on the specific toggle screen
-                            Intent locIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                            locIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            try {
-                                context.startActivity(locIntent);
-                            } catch (Exception e) {
-                                Intent fallback = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                fallback.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                context.startActivity(fallback);
-                            }
-                        } else {
-                            Toast.makeText(context, "Location is already ON", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-
-                    // 5. Data On Command (Accessibility)
-                    if (msg.equalsIgnoreCase(code + " Data on")) {
-                        sp.edit().putLong("LastCommandTime", System.currentTimeMillis()).apply();
-                        
-                        // Action 1: Data Usage Settings (Requested by user)
-                        Intent dataIntent = new Intent("android.settings.DATA_USAGE_SETTINGS");
-                        dataIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        
-                        try {
+                            // Settings app के अंदर Mobile Network वाले पेज को ध्यान से खोलो
+                            Intent dataIntent = new Intent();
+                            dataIntent.setComponent(new android.content.ComponentName(
+                                    "com.android.settings",
+                                    "com.android.settings.Settings$MobileNetworkSettingsActivity"
+                            ));
+                            dataIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             context.startActivity(dataIntent);
                         } catch (Exception e) {
-                            try {
-                                // Fallback: Network Operator Settings
-                                Intent networkIntent = new Intent(Settings.ACTION_NETWORK_OPERATOR_SETTINGS);
-                                networkIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                context.startActivity(networkIntent);
-                            } catch (Exception e2) {
-                                Toast.makeText(context, "Could not open Data Settings", Toast.LENGTH_SHORT).show();
-                            }
+                            // अगर ऊपर वाला नहीं खुला, तो ये खोलो (Backup)
+                            Intent backupIntent = new Intent("android.settings.WIRELESS_SETTINGS");
+                            backupIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(backupIntent);
                         }
                     }
+
+                    // 4. Location On (Accessibility से अपने आप ऑन होगा)
+                    else if (msg.trim().equalsIgnoreCase("location on")) {
+                        abortBroadcast();
+
+                        // Accessibility service को बताओ कि "location" वाला button दबाना है
+                        ToggleAccessibilityService.ACTION = "location";
+
+                        // Location का Settings पेज खोलो
+                        Intent locIntent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        locIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(locIntent);
+                    }
+
                 }
             }
         }
     }
-
     // Removing unused method to clean up
 }

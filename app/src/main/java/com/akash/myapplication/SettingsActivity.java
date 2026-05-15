@@ -1,5 +1,7 @@
 package com.akash.myapplication;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;

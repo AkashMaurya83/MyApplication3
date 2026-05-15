@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "674062366222",
+    "project_id": "smsapp-c3",
+    "storage_bucket": "smsapp-c3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674062366222:android:4eae20f244b4d1a15fee5f",
+        "android_client_info": {
+          "package_name": "com.akash.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmOf7_FRxVnzU8lDbzNlrO4tRHQmlb2IM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
