@@ -21,7 +21,7 @@ public class LocationService extends Service {
     private LocationManager locationManager;
     private Location bestLocation = null;
     private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
-    private static final int TIMEOUT_MS = 60000; // 60 seconds timeout
+    private static final int TIMEOUT_MS = 60000;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -41,19 +41,16 @@ public class LocationService extends Service {
             return;
         }
 
-        // 1. Try last known location first
         Location gpsLast = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         Location netLast = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         
         bestLocation = getBetterLocation(gpsLast, netLast);
 
-        // If we have a very fresh and accurate location, use it immediately
         if (bestLocation != null && (System.currentTimeMillis() - bestLocation.getTime() < 30000) && bestLocation.getAccuracy() < 30) {
             sendLocationAndStop();
             return;
         }
 
-        // 2. Start requesting fresh updates from BOTH providers
         try {
             if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 0, locationListener);
@@ -65,7 +62,6 @@ public class LocationService extends Service {
             Log.e("LocationService", "Error requesting updates: " + e.getMessage());
         }
 
-        // 3. Set a timeout to ensure we send SOMETHING eventually
         timeoutHandler.postDelayed(this::sendLocationAndStop, TIMEOUT_MS);
     }
 
@@ -74,7 +70,6 @@ public class LocationService extends Service {
         public void onLocationChanged(@NonNull Location location) {
             bestLocation = getBetterLocation(bestLocation, location);
             
-            // If accuracy is excellent (less than 20 meters), send now and stop
             if (bestLocation != null && bestLocation.getAccuracy() < 20) {
                 sendLocationAndStop();
             }
@@ -95,7 +90,6 @@ public class LocationService extends Service {
         if (bestLocation != null) {
             sendLocationSms(bestLocation);
         } else {
-            // Fallback if no location found at all
             sendSms(senderNumber, "Security Guard: Error - Could not find location. Please ensure GPS is ON.");
         }
         stopSelf();
@@ -128,13 +122,12 @@ public class LocationService extends Service {
         }
     }
 
-    // Logic to determine which location is better
     private Location getBetterLocation(Location loc1, Location loc2) {
         if (loc1 == null) return loc2;
         if (loc2 == null) return loc1;
 
         long timeDelta = loc2.getTime() - loc1.getTime();
-        boolean isSignificantlyNewer = timeDelta > 120000; // 2 minutes
+        boolean isSignificantlyNewer = timeDelta > 120000;
         boolean isSignificantlyOlder = timeDelta < -120000;
         boolean isNewer = timeDelta > 0;
 

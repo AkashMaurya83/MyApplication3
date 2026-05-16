@@ -7,10 +7,6 @@
     android:background="@color/ui_background"
     tools:context=".MainActivity">
 
-    <!-- Top Header -->
-
-    <!-- Top Icons Section -->
-
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
@@ -26,7 +22,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Services Section -->
     <LinearLayout
         android:id="@+id/llTopIcons"
         android:layout_width="wrap_content"
@@ -49,7 +44,8 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
             app:strokeColor="@color/ui_accent"
-            app:strokeWidth="1dp">
+            app:strokeWidth="1dp"
+            tools:ignore="TouchTargetSizeCheck">
 
             <LinearLayout
                 android:id="@+id/login"
@@ -87,7 +83,8 @@
             app:cardCornerRadius="12dp"
             app:cardElevation="0dp"
             app:strokeColor="@color/ui_accent"
-            app:strokeWidth="1dp">
+            app:strokeWidth="1dp"
+            tools:ignore="TouchTargetSizeCheck">
 
             <LinearLayout
                 android:id="@+id/learn"
@@ -141,7 +138,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/divider" />
 
-    <!-- Bottom Action Bar -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -161,7 +157,6 @@
             android:padding="8dp"
             android:rowCount="3">
 
-            <!-- Ring Phone -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -198,7 +193,6 @@
             </com.google.android.material.card.MaterialCardView>
 
 
-            <!-- Front Camera -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -234,7 +228,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Back Camera -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -270,7 +263,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- GPS -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -306,7 +298,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Data -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -343,7 +334,6 @@
             </com.google.android.material.card.MaterialCardView>
 
 
-            <!-- Flight Mode Off -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -382,7 +372,6 @@
         </GridLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- SMS Logs Display (Restored) -->
     <TextView
         android:id="@+id/tvReceive"
         android:layout_width="0dp"
@@ -478,13 +467,15 @@
         app:layout_constraintTop_toTopOf="@+id/bottomBar"
         app:layout_constraintVertical_bias="0.156"
         app:strokeColor="@color/colorAccent"
-        app:strokeWidth="3dp" />
+        app:strokeWidth="3dp"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="63dp"
         android:layout_height="21dp"
-        android:layout_marginBottom="36dp"
+        android:layout_marginBottom="32dp"
+        android:gravity="center"
         android:text="SECURITY"
         android:textColor="#F8F5F5"
         app:layout_constraintBottom_toBottomOf="parent"

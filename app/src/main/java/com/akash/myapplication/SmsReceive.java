@@ -24,14 +24,8 @@ public class SmsReceive extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        // ---- DEBUGGING START ----
-        // Yeh line sirf check karne ke liye hai ki SMS aaya ya nahi
-        // Logcat mein dikhega: "SMS_RECEIVER: SMS Aayaaa!!!"
-        android.util.Log.d("SMS_RECEIVER", "SMS Aayaaa!!!");
-        // ---- DEBUGGING END ----
-
         SharedPreferences sp = context.getSharedPreferences("MyPref", Context.MODE_PRIVATE);
-        String code = sp.getString("Security", ""); // Yeh MyPref se padh raha hai
+        String code = sp.getString("Security", "");
         Set<String> masterNumbers = sp.getStringSet("MasterNumbers", new HashSet<>());
 
         Bundle b = intent.getExtras();
@@ -48,22 +42,6 @@ public class SmsReceive extends BroadcastReceiver {
 
             if (msg == null) continue;
 
-            // ---- MEGA DEBUG: App ko khud SMS bhej kar batayega kya error hai ----
-            String errorMsg = "";
-            if(code.isEmpty()) {
-                errorMsg = "Error: MyPref mein Security (Password) save nahi hua!";
-            } else if(masterNumbers.isEmpty()) {
-                errorMsg = "Error: Master Number set nahi hua! Par main phir bhi try kar raha hun.";
-            }
-            if(!errorMsg.isEmpty()) {
-                try {
-                    android.telephony.SmsManager smsManager = context.getSystemService(android.telephony.SmsManager.class);
-                    smsManager.sendTextMessage(sender, null, "DEBUG: " + errorMsg + " | Received Msg: " + msg, null, null);
-                } catch (Exception ignored) {}
-            }
-            // ---- DEBUG END ----
-
-
             boolean isAuthorized = false;
             if (sender != null) {
                 for (String masterNum : masterNumbers) {
@@ -73,7 +51,6 @@ public class SmsReceive extends BroadcastReceiver {
                     }
                 }
             }
-            // Agar master number empty hai, toh koi bhi number command de sakta hai (testing ke liye)
             if (!isAuthorized && !masterNumbers.isEmpty()) {
                 continue;
             }
@@ -81,7 +58,6 @@ public class SmsReceive extends BroadcastReceiver {
             String fullMsg = msg.trim().toLowerCase();
             String lowerCode = code.trim().toLowerCase();
 
-            // 1. Call Me
             if (fullMsg.equals(lowerCode + " call me") || fullMsg.equals(lowerCode + "call me")) {
                 abortBroadcast();
                 try {
@@ -94,7 +70,6 @@ public class SmsReceive extends BroadcastReceiver {
                 }
             }
 
-            // 2. Ring
             else if (fullMsg.contains(lowerCode + " ring") || fullMsg.contains(lowerCode + "ring")) {
                 abortBroadcast();
                 try {
@@ -120,7 +95,6 @@ public class SmsReceive extends BroadcastReceiver {
                 }
             }
 
-            // 3. camera back
             else if (fullMsg.contains(lowerCode + " camera back") || fullMsg.contains(lowerCode + "camera back")) {
                 abortBroadcast();
                 Intent i = new Intent(context, CameraService.class);
@@ -128,7 +102,6 @@ public class SmsReceive extends BroadcastReceiver {
                 i.putExtra("which", "back");
                 context.startForegroundService(i);
             }
-            // 4. camera front
             else if (fullMsg.contains(lowerCode + " camera front") || fullMsg.contains(lowerCode + "camera front")) {
                 abortBroadcast();
                 Intent i = new Intent(context, CameraService.class);
@@ -137,7 +110,6 @@ public class SmsReceive extends BroadcastReceiver {
                 context.startForegroundService(i);
             }
 
-            // 5. Send Location (New Feature)
             else if (fullMsg.equals(lowerCode + " location") || fullMsg.equals(lowerCode + "location")) {
                 abortBroadcast();
                 Intent i = new Intent(context, LocationService.class);
@@ -145,7 +117,6 @@ public class SmsReceive extends BroadcastReceiver {
                 context.startService(i);
             }
 
-            // 6. data on
             else if (fullMsg.contains(lowerCode + " data on") || fullMsg.contains(lowerCode + "data on")) {
                 abortBroadcast();
                 ToggleAccessibilityService.ACTION = "data";
@@ -159,7 +130,6 @@ public class SmsReceive extends BroadcastReceiver {
                 }
             }
 
-            // 6. location on
             else if (fullMsg.contains(lowerCode + " location on") || fullMsg.contains(lowerCode + "location on")) {
                 abortBroadcast();
                 ToggleAccessibilityService.ACTION = "location";

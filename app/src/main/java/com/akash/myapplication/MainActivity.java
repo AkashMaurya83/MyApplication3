@@ -60,17 +60,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         PrefsHelper prefsHelper = new PrefsHelper(this);
 
-        // Check: Kya password pehle se set hai?
         if (prefsHelper.isFirstTime()) {
-            // Nahi hai -> Toh Setup (Password banane) wali screen par bhejo
             startActivity(new Intent(MainActivity.this, SetupPasswordActivity.class));
             finish();
             return;
         }
 
-        // Haan hai -> Lekin kya user login hai?
         if (!getIntent().getBooleanExtra("isLoggedIn", false)) {
-            // Login nahi hai -> Toh LoginActivity par bhejo
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             finish();
             return;
@@ -78,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         sp = getSharedPreferences("MyPref", MODE_PRIVATE);
 
-        Receive = findViewById(R.id.tvReceive); // Restored link
+        Receive = findViewById(R.id.tvReceive);
         btnstopRing = findViewById(R.id.btnstopRing);
         btnAccessibility = findViewById(R.id.btnAccessibility);
 
