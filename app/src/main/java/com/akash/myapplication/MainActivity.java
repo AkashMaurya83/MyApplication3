@@ -1,11 +1,14 @@
 package com.akash.myapplication;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,7 +23,11 @@ public class MainActivity extends AppCompatActivity {
 
     Button btnstopRing, btnAccessibility;
     TextView Receive;
-    MaterialCardView cardSettings, cardManual;
+
+    Button cardSettings;
+    MaterialCardView cardSettingsCard;
+    Button cardManual;
+
     String number = "";
     SharedPreferences sp;
 
@@ -46,25 +53,50 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        PrefsHelper prefsHelper = new PrefsHelper(this);
+
+        // Check: Kya password pehle se set hai?
+        if (prefsHelper.isFirstTime()) {
+            // Nahi hai -> Toh Setup (Password banane) wali screen par bhejo
+            startActivity(new Intent(MainActivity.this, SetupPasswordActivity.class));
+            finish();
+            return;
+        }
+
+        // Haan hai -> Lekin kya user login hai?
+        if (!getIntent().getBooleanExtra("isLoggedIn", false)) {
+            // Login nahi hai -> Toh LoginActivity par bhejo
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+            return;
+        }
 
         sp = getSharedPreferences("MyPref", MODE_PRIVATE);
 
+        Receive = findViewById(R.id.tvReceive); // Restored link
         btnstopRing = findViewById(R.id.btnstopRing);
         btnAccessibility = findViewById(R.id.btnAccessibility);
-        Receive = findViewById(R.id.Receive);
-        cardSettings = findViewById(R.id.cardSettings);
-        cardManual = findViewById(R.id.cardManual);
+
+        cardSettings = findViewById(R.id.btnSecurity);
+        cardSettingsCard = findViewById(R.id.cardSettings);
+        cardManual = findViewById(R.id.btnlearn);
 
         cardSettings.setOnClickListener(v -> {
             startActivity(new Intent(this, SettingsActivity.class));
         });
 
+        if (cardSettingsCard != null) {
+            cardSettingsCard.setOnClickListener(v -> {
+                startActivity(new Intent(this, SetupPasswordActivity.class));
+            });
+        }
         cardManual.setOnClickListener(v -> {
-            startActivity(new Intent(this, ManualActivity.class));
+            startActivity(new Intent(this, ManualActivity.class ));
         });
 
         ActivityCompat.requestPermissions(this, new String[]{
@@ -83,15 +115,23 @@ public class MainActivity extends AppCompatActivity {
         clearAppStorage();
 
         btnstopRing.setOnClickListener(v -> {
-            if (SmsReceive.ring != null && SmsReceive.ring.isPlaying()) {
-                SmsReceive.ring.stop();
-                Toast.makeText(MainActivity.this, "Ring stopped", Toast.LENGTH_SHORT).show();
-                if (number != null && !number.isEmpty()) {
-                    try {
-                        SmsManager smsManager = getSystemService(SmsManager.class);
-                        smsManager.sendTextMessage(number, null, "Ringing Stopped", null, null);
-                    } catch (Exception e) {}
+            if (SmsReceive.ring != null) {
+                if (SmsReceive.ring.isPlaying()) {
+                    SmsReceive.ring.stop();
+                    Toast.makeText(MainActivity.this, "Ring stopped", Toast.LENGTH_SHORT).show();
+                    if (number != null && !number.isEmpty()) {
+                        try {
+                            android.telephony.SmsManager smsManager = getSystemService(android.telephony.SmsManager.class);
+                            smsManager.sendTextMessage(number, null, "Security Guard: Ringing Stopped", null, null);
+                        } catch (Exception e) {
+                            Toast.makeText(MainActivity.this, "SMS failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                } else {
+                    Toast.makeText(MainActivity.this, "Phone is not ringing", Toast.LENGTH_SHORT).show();
                 }
+            } else {
+                Toast.makeText(MainActivity.this, "No active ringtone to stop", Toast.LENGTH_SHORT).show();
             }
         });
 

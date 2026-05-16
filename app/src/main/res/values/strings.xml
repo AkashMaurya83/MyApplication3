@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Security Guard</string>
+    <string name="app_name">FIND</string>
     <string name="stop_ring">Stop Ringing</string>
     <string name="accessibility_service_description">Automates security settings activation via SMS commands.</string>
     <string name="click_to_remove"> (Click to remove)</string>
@@ -8,6 +8,36 @@
     <string name="authorized_numbers">Authorized Numbers</string>
     <string name="enable_accessibility">Enable Accessibility</string>
     <string name="command_history">Command History</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="quick_actions">Quick Actions</string>
+    <string name="sms_title">SMS Controller</string>
+    <string name="login">Login</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="send_otp">Send OTP</string>
+    <string name="enter_otp">Enter OTP</string>
+    <string name="verify_login">Verify &amp; Login</string>
+    <string name="otp_sent">OTP sent successfully</string>
+    <string name="invalid_otp">Invalid OTP</string>
+    <string name="login_success">Login Successful</string>
+    <string name="learn">learn</string>
+    <string name="recent_messages">Recent Messages</string>
+    <string name="stop_ring_multiline">STOP\nRING</string>
+    <string name="manual_title">User Manual</string>
+    <string name="manual_how_to">How to use Security Guard</string>
+    <string name="manual_steps">1. Set your secret Security Code in Settings.\n\n2. Add Master Numbers who are authorized to control your phone.\n\n3. SMS Commands (Replace \'CODE\' with your secret code):\n\n   • \'CODE Ring\' - Phone will ring even on silent.\n\n   • \'CODE Photo\' - Capture front camera photo.\n\n   • \'CODE Photo Back\' - Capture back camera photo.\n\n   • \'CODE Location On\' - Turn on GPS via accessibility.\n\n   • \'CODE Data on\' - Turn on Mobile Data via accessibility.\n\n   • \'CODE Flight Off\' - Turn off Airplane Mode via accessibility.\n\n4. Make sure to Enable Accessibility Service for Location/Data/Flight commands to work.</string>
+    <string name="manual_tip">Tip: Commands are case-insensitive. \'CODE ring\' and \'CODE Ring\' both work.</string>
     <string name="save_code">Save Code</string>
     <string name="add_number">Add Number</string>
+    <string name="our_services">Our Services</string>
+    <string name="service_ring">Remote Ring</string>
+    <string name="service_callback">Auto Callback</string>
+    <string name="service_front_photo">Front Capture</string>
+    <string name="service_back_photo">Back Capture</string>
+    <string name="service_gps">Location</string>
+    <string name="service_data">Data ON</string>
+    <string name="service_flight">Flight OFF</string>
+    <string name="service_flight_on">Flight ON</string>
+    <string name="create_security_code">Create Security Code</string>
+    <string name="add_master_number">Add Master Number</string>
+    <string name="set_security_code">Set Security Code</string>
 </resources>

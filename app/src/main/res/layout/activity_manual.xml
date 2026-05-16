@@ -4,21 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
+    android:background="@color/ui_background"
     tools:context=".ManualActivity">
 
     <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary">
+        android:background="@color/ui_background"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="User Manual"
-            app:navigationIcon="?attr/homeAsUpIndicator"
-            app:titleTextColor="@color/white" />
+            app:navigationIconTint="@color/ui_accent"
+            app:title="@string/manual_title"
+            app:titleMarginTop="4dp"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
+            app:titleTextColor="@color/ui_text_primary" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
@@ -30,40 +34,82 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="20dp">
 
+            <!-- Quick Tip Section -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                android:layout_height="516dp"
+                android:layout_marginBottom="24dp"
+                app:cardBackgroundColor="@color/ui_surface"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/ui_accent"
+                app:strokeWidth="1dp">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="350dp"
+                    android:layout_height="548dp"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="20dp">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="How to use Security Guard"
-                        android:textColor="@color/textPrimary"
+                        android:layout_marginBottom="16dp"
+                        android:text="@string/manual_how_to"
+                        android:textColor="@color/ui_text_primary"
                         android:textSize="20sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="16dp"/>
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginBottom="16dp"
+                        android:background="@color/button_dark" />
 
                     <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="1. Set your secret Security Code in Settings.\n\n2. Add Master Numbers who are authorized to control your phone.\n\n3. SMS Commands (Replace 'CODE' with your secret code):\n\n   • 'CODE Ring' - Phone will ring even on silent.\n\n   • 'CODE Call me' - Phone will call you back.\n\n   • 'CODE Photo' - Capture front camera photo.\n\n   • 'CODE Photo Back' - Capture back camera photo.\n\n   • 'CODE Location On' - Turn on GPS via accessibility.\n\n   • 'CODE Data on' - Turn on Mobile Data via accessibility.\n\n4. Make sure to Enable Accessibility Service for Location/Data commands to work."
-                        android:textColor="@color/textPrimary"
-                        android:textSize="16sp"
-                        android:lineSpacingExtra="4dp"/>
+                        android:layout_width="345dp"
+                        android:layout_height="445dp"
+                        android:lineSpacingExtra="6dp"
+                        android:text="@string/manual_steps"
+                        android:textColor="@color/ui_text_secondary"
+                        android:textSize="15sp" />
 
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/button_dark"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp">
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="12dp"
+                    android:contentDescription="@null"
+                    android:src="@android:drawable/ic_dialog_info"
+                    app:tint="@color/ui_accent" />
+
+                <TextView
+                    android:layout_width="308dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/manual_tip"
+                    android:textColor="@color/ui_text_secondary"
+                    android:textSize="13sp" />
+            </LinearLayout>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

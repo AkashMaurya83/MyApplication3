@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
-    tools:context=".SettingsActivity">
+    android:background="@color/ui_background"
+    tools:context=".SettingsActivity"
+    tools:ignore="VisualLintSystemUi">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -16,8 +17,9 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="System Settings"
+            android:background="#4C80B3"
             app:navigationIcon="?attr/homeAsUpIndicator"
+            app:title="System Settings"
             app:titleTextColor="@color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -33,13 +35,14 @@
             android:padding="16dp">
 
             <!-- Security Section -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/cardBackground">
+                app:cardBackgroundColor="@color/ui_surface">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -51,23 +54,29 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/security_settings"
-                        android:textColor="@color/textPrimary"
+                        android:textColor="@color/ui_text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp"/>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Set Security Code"
-                        app:startIconDrawable="@android:drawable/ic_lock_lock"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                        android:hint="set security code "
+                        android:textColorHint="#5F5C5C"
+                        app:hintTextColor="#000000"
+                        app:startIconDrawable="@android:drawable/ic_lock_lock">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/edtCode"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPassword" />
+
+                            android:textColor="#F2F2F2"
+                            android:textColorHint="@color/black"
+                            tools:ignore="" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
@@ -79,6 +88,7 @@
                         android:text="@string/save_code"
                         app:cornerRadius="8dp" />
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
 
             <!-- Numbers Section -->
@@ -88,7 +98,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/cardBackground">
+                app:cardBackgroundColor="@color/ui_surface">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -100,7 +110,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/authorized_numbers"
-                        android:textColor="@color/textPrimary"
+                        android:textColor="@color/ui_text_primary"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:layout_marginBottom="16dp"/>
@@ -108,7 +118,8 @@
                     <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Add Master Number"
+                        android:hint="@string/add_master_number"
+                        android:textColorHint="#757070"
                         app:startIconDrawable="@android:drawable/ic_menu_call"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -116,17 +127,20 @@
                             android:id="@+id/edtMasterNumber"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="phone" />
+                            android:inputType="phone"
+                            android:textColor="#FFFFFF"
+                            tools:ignore="TextContrastCheck,VisualLintTextFieldSize" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAddNumber"
+                        style="@style/Widget.MaterialComponents.Button.TextButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:layout_marginTop="8dp"
                         android:text="@string/add_number"
-                        style="@style/Widget.MaterialComponents.Button.TextButton" />
+                        android:textColor="#B388FF" />
 
                     <View
                         android:layout_width="match_parent"
@@ -141,7 +155,20 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical" />
                 </LinearLayout>
+
             </com.google.android.material.card.MaterialCardView>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="208dp"
+                tools:ignore="SpeakableTextPresentCheck">
+
+                <TextView
+                    android:id="@+id/textSecondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="TextView" />
+            </ScrollView>
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
