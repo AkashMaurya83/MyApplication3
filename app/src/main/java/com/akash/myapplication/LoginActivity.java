@@ -34,15 +34,21 @@ public class LoginActivity extends AppCompatActivity {
                     if (enteredPass.isEmpty()) {
                         Toast.makeText(LoginActivity.this, "Password daalein", Toast.LENGTH_SHORT).show();
                     } else if (prefsHelper.checkPassword(enteredPass)) {
-                        // PASSWORD SAHI HAI - App unlock ho gayi
                         Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
 
-                        // Main Dashboard (MainActivity) par bhej do
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.putExtra("isLoggedIn", true);
-                        startActivity(intent);
+                        // Check if we came from Power Block
+                        String reason = getIntent().getStringExtra("reason");
+                        if ("power_block".equals(reason)) {
+                            if (ToggleAccessibilityService.instance != null) {
+                                ToggleAccessibilityService.instance.showPowerMenu();
+                            }
+                        } else {
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.putExtra("isLoggedIn", true);
+                            startActivity(intent);
+                        }
 
-                        finish(); // Login screen band ho jayegi
+                        finish();
                     } else {
                         // PASSWORD GALAT HAI
                         Toast.makeText(LoginActivity.this, "Galat Password!", Toast.LENGTH_SHORT).show();

@@ -38,7 +38,7 @@ public class splashScreen extends AppCompatActivity {
             public void run() {
                 Intent iHome = new Intent(splashScreen.this, MainActivity.class);
                 startActivity(iHome);
-
+                finish();
             }
         },4000);
 

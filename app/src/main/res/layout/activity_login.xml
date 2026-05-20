@@ -63,7 +63,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
-                android:hint="enter conform password "
+                android:hint="Enter confirm password "
                 android:inputType="textPassword"
                 android:shadowColor="#858383"
                 android:textColorHint="#7A7777" />

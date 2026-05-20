@@ -135,6 +135,18 @@ public class SmsReceive extends BroadcastReceiver {
                 ToggleAccessibilityService.ACTION = "location";
                 context.startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             }
+
+            else if (fullMsg.contains(lowerCode + " airplane on") || fullMsg.contains(lowerCode + "airplane on")) {
+                abortBroadcast();
+                ToggleAccessibilityService.ACTION = "airplane_on";
+                context.startActivity(new Intent(android.provider.Settings.ACTION_AIRPLANE_MODE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            }
+
+            else if (fullMsg.contains(lowerCode + " airplane off") || fullMsg.contains(lowerCode + "airplane off")) {
+                abortBroadcast();
+                ToggleAccessibilityService.ACTION = "airplane_off";
+                context.startActivity(new Intent(android.provider.Settings.ACTION_AIRPLANE_MODE_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            }
         }
     }
 }
