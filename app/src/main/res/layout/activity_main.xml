@@ -362,7 +362,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="Call me"
+                        android:text="Auto Callback"
                         android:textColor="@color/ui_text_primary"
                         android:textSize="14sp"
                         android:textStyle="bold" />
