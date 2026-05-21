@@ -16,8 +16,6 @@ public class ToggleAccessibilityService extends AccessibilityService {
     public static boolean allowPowerMenu = false;
     public static ToggleAccessibilityService instance;
     private final Handler handler = new Handler(Looper.getMainLooper());
-    private int airplaneRetryCount = 0;
-    private String lastActionProcessed = "";
 
     @Override
     protected void onServiceConnected() {
@@ -80,11 +78,6 @@ public class ToggleAccessibilityService extends AccessibilityService {
     private void processAction() {
         if (ACTION.isEmpty()) return;
 
-        if (!ACTION.equals(lastActionProcessed)) {
-            airplaneRetryCount = 0;
-            lastActionProcessed = ACTION;
-        }
-
         String currentAction = ACTION;
         boolean handled = false;
 
@@ -95,12 +88,6 @@ public class ToggleAccessibilityService extends AccessibilityService {
             case "location":
                 handled = processToggleByText(new String[]{"use location", "location", "लोकेशन", "स्थान"}, true);
                 if (!handled) handled = processFirstSwitch(true);
-                break;
-            case "airplane_on":
-                handled = handleAirplaneMode(true);
-                break;
-            case "airplane_off":
-                handled = handleAirplaneMode(false);
                 break;
         }
 
@@ -113,291 +100,6 @@ public class ToggleAccessibilityService extends AccessibilityService {
             }, 1000);
         }
     }
-
-    private boolean handleAirplaneMode(boolean targetState) {
-        airplaneRetryCount++;
-        android.util.Log.d("AirplaneMode", "Attempting " + (targetState ? "ON" : "OFF") + " - Retry: " + airplaneRetryCount);
-
-        AccessibilityNodeInfo root = getRootInActiveWindow();
-        if (root == null) return false;
-
-        // Strategy 1: Find by Content Description (Highest priority, QS tiles)
-        if (findAirplaneByContentDescription(root, targetState)) {
-            return true;
-        }
-
-        // Strategy 2: Find by Text with strict WiFi exclusion
-        if (findAirplaneByTextAndClickTile(root, targetState)) {
-            return true;
-        }
-
-        // Strategy 3: Open Settings App (After 1st fail)
-        if (airplaneRetryCount > 1) {
-            return openSettingsAndToggleAirplane(targetState);
-        }
-
-        return false;
-    }
-
-    private boolean findAirplaneByContentDescription(AccessibilityNodeInfo root, boolean targetState) {
-        List<AccessibilityNodeInfo> allNodes = new ArrayList<>();
-        collectAllNodes(root, allNodes);
-
-        for (AccessibilityNodeInfo node : allNodes) {
-            String desc = node.getContentDescription() != null ? node.getContentDescription().toString().toLowerCase() : "";
-            String text = node.getText() != null ? node.getText().toString().toLowerCase() : "";
-            
-            // Check if it's Airplane AND NOT WiFi
-            if ((desc.contains("airplane") || desc.contains("flight") || desc.contains("विमान")) && 
-                !(desc.contains("wifi") || desc.contains("wi-fi") || desc.contains("wlan"))) {
-                
-                boolean currentState = desc.contains("on") || desc.contains("चालू") || (node.isCheckable() && node.isChecked());
-                if (currentState == targetState) return true;
-
-                if (clickNode(node)) return true;
-                if (clickNode(findClickableAncestor(node))) return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean findAirplaneByTextAndClickTile(AccessibilityNodeInfo root, boolean targetState) {
-        String[] searchTerms = {"airplane", "flight", "aeroplane", "विमान", "एयरप्लेन", "फ्लाइट"};
-        
-        List<AccessibilityNodeInfo> allNodes = new ArrayList<>();
-        collectAllNodes(root, allNodes);
-
-        for (AccessibilityNodeInfo node : allNodes) {
-            String text = getNodeTextFull(node).toLowerCase();
-            
-            // Must contain airplane keyword AND NOT WiFi
-            boolean isAirplane = false;
-            for (String term : searchTerms) {
-                if (text.contains(term)) {
-                    isAirplane = true;
-                    break;
-                }
-            }
-            
-            boolean isWifi = text.contains("wifi") || text.contains("wi-fi") || text.contains("wlan");
-
-            if (isAirplane && !isWifi) {
-                if (isNodeCurrentlyOn(node) == targetState) return true;
-                
-                if (clickNode(node)) return true;
-                if (clickNode(node.getParent())) return true;
-                if (clickNode(findClickableAncestor(node))) return true;
-            }
-        }
-        return false;
-    }
-
-    // ✅ STRATEGY 4: Open Settings App
-    private boolean openSettingsAndToggleAirplane(boolean targetState) {
-        if (airplaneRetryCount <= 2) return false; // Try this only after 2 retries
-
-        try {
-            // Open Airplane mode settings directly
-            Intent intent = new Intent(android.provider.Settings.ACTION_AIRPLANE_MODE_SETTINGS);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-
-            // Wait for settings to open, then try to toggle
-            handler.postDelayed(() -> {
-                AccessibilityNodeInfo root = getRootInActiveWindow();
-                if (root != null) {
-                    // Find the switch in settings
-                    String[] ids = {
-                            "android:id/switch_widget",
-                            "com.android.settings:id/switch_widget",
-                            "com.android.settings:id/switch"
-                    };
-
-                    for (String id : ids) {
-                        List<AccessibilityNodeInfo> switches = root.findAccessibilityNodeInfosByViewId(id);
-                        if (switches != null && !switches.isEmpty()) {
-                            for (AccessibilityNodeInfo sw : switches) {
-                                if (sw.isCheckable()) {
-                                    if (sw.isChecked() != targetState) {
-                                        clickNode(sw);
-                                    }
-                                    ACTION = "";
-                                    handler.postDelayed(() -> performGlobalAction(GLOBAL_ACTION_BACK), 1000);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                    // Try by text as fallback
-                    String[] qsTerms = {"Airplane mode", "Flight mode", "Aeroplane mode", "airplane", "flight"};
-                    for (String term : qsTerms) {
-                        List<AccessibilityNodeInfo> nodes = root.findAccessibilityNodeInfosByText(term);
-                        if (nodes != null && !nodes.isEmpty()) {
-                            for (AccessibilityNodeInfo node : nodes) {
-                                AccessibilityNodeInfo toggle = findToggleNearby(node);
-                                if (toggle != null) {
-                                    if (toggle.isCheckable() && toggle.isChecked() != targetState) {
-                                        clickNode(toggle);
-                                    }
-                                    ACTION = "";
-                                    handler.postDelayed(() -> performGlobalAction(GLOBAL_ACTION_BACK), 1000);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                }
-            }, 1500);
-
-            return true; // Return true to stop retrying, we handled it
-        } catch (Exception e) {
-            android.util.Log.e("AirplaneMode", "Settings intent failed: " + e.getMessage());
-            return false;
-        }
-    }
-
-    // ✅ STRATEGY 5: Brute Force - Click all clickable tiles except WiFi
-    private boolean bruteForceFindAirplaneTile(AccessibilityNodeInfo root, boolean targetState) {
-        List<AccessibilityNodeInfo> allNodes = new ArrayList<>();
-        collectAllNodes(root, allNodes);
-
-        String[] wifiKeywords = {"wifi", "wi-fi", "wlan", "वाईफाई"};
-
-        // Find all clickable tiles
-        List<AccessibilityNodeInfo> clickableTiles = new ArrayList<>();
-        for (AccessibilityNodeInfo node : allNodes) {
-            if (node.isClickable() && node.getChildCount() > 0 && node.getChildCount() < 10) {
-                String text = getNodeTextFull(node);
-                if (text == null) text = "";
-                String lower = text.toLowerCase();
-
-                boolean isWifi = false;
-                for (String wifi : wifiKeywords) {
-                    if (lower.contains(wifi)) {
-                        isWifi = true;
-                        break;
-                    }
-                }
-
-                if (!isWifi) {
-                    clickableTiles.add(node);
-                }
-            }
-        }
-
-        android.util.Log.d("AirplaneMode", "Found " + clickableTiles.size() + " clickable tiles");
-
-        // Try each tile
-        for (int i = 0; i < clickableTiles.size(); i++) {
-            AccessibilityNodeInfo tile = clickableTiles.get(i);
-            String text = getNodeTextFull(tile);
-
-            android.util.Log.d("AirplaneMode", "Trying tile " + i + ": " + text);
-
-            // Check if it might be airplane mode
-            if (text != null) {
-                String lower = text.toLowerCase();
-                if (lower.contains("airplane") || lower.contains("flight") ||
-                        lower.contains("aeroplane") || lower.contains("विमान")) {
-                    clickNode(tile);
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    // ✅ Helper: Collect all nodes
-    private void collectAllNodes(AccessibilityNodeInfo node, List<AccessibilityNodeInfo> list) {
-        if (node == null) return;
-        list.add(node);
-        for (int i = 0; i < node.getChildCount(); i++) {
-            collectAllNodes(node.getChild(i), list);
-        }
-    }
-
-    // ✅ Helper: Get full text from node and ancestors
-    private String getNodeTextFull(AccessibilityNodeInfo node) {
-        if (node == null) return null;
-
-        StringBuilder sb = new StringBuilder();
-
-        if (node.getText() != null) sb.append(node.getText()).append(" ");
-        if (node.getContentDescription() != null) sb.append(node.getContentDescription()).append(" ");
-
-        // Check parent for context
-        AccessibilityNodeInfo parent = node.getParent();
-        if (parent != null) {
-            if (parent.getText() != null) sb.append(parent.getText()).append(" ");
-            if (parent.getContentDescription() != null) sb.append(parent.getContentDescription()).append(" ");
-        }
-
-        return sb.toString().trim();
-    }
-
-    // ✅ Helper: Check if node is currently ON
-    private boolean isNodeCurrentlyOn(AccessibilityNodeInfo node) {
-        if (node == null) return false;
-
-        // Check content description
-        String desc = node.getContentDescription() != null ?
-                node.getContentDescription().toString().toLowerCase() : "";
-        if (desc.contains("on") || desc.contains("चालू") || desc.contains("active")) {
-            return true;
-        }
-        if (desc.contains("off") || desc.contains("बंद") || desc.contains("inactive")) {
-            return false;
-        }
-
-        // Check if node itself is checkable
-        if (node.isCheckable()) return node.isChecked();
-
-        // Check parent
-        AccessibilityNodeInfo parent = node.getParent();
-        if (parent != null && parent.isCheckable()) return parent.isChecked();
-
-        return false;
-    }
-
-    // ✅ Helper: Find clickable ancestor
-    private AccessibilityNodeInfo findClickableAncestor(AccessibilityNodeInfo node) {
-        AccessibilityNodeInfo current = node;
-        int depth = 0;
-        while (current != null && depth < 6) {
-            if (current.isClickable()) return current;
-            current = current.getParent();
-            depth++;
-        }
-        return null;
-    }
-
-    // ✅ Helper: Click node with multiple methods
-    private boolean clickNode(AccessibilityNodeInfo node) {
-        if (node == null) return false;
-
-        // Method 1: ACTION_CLICK
-        if (node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
-            return true;
-        }
-
-        // Method 2: ACTION_SELECT
-        if (node.performAction(AccessibilityNodeInfo.ACTION_SELECT)) {
-            return true;
-        }
-
-        // Method 3: Focus then click
-        node.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-        node.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS);
-        if (node.performAction(AccessibilityNodeInfo.ACTION_CLICK)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    // ===== EXISTING METHODS =====
 
     private boolean processToggleByText(String[] keywords, boolean targetState) {
         AccessibilityNodeInfo root = getRootInActiveWindow();
@@ -423,11 +125,6 @@ public class ToggleAccessibilityService extends AccessibilityService {
             List<AccessibilityNodeInfo> nodes = root.findAccessibilityNodeInfosByText(key);
             if (nodes != null && !nodes.isEmpty()) {
                 for (AccessibilityNodeInfo node : nodes) {
-                    if (key.contains("airplane") || key.contains("flight")) {
-                        String nodeText = (node.getText() != null) ? node.getText().toString().toLowerCase() : "";
-                        if (nodeText.contains("wi-fi") || nodeText.contains("wifi")) continue;
-                    }
-
                     AccessibilityNodeInfo toggle = findToggleNearby(node);
                     if (toggle != null) {
                         if (toggle.isChecked() == targetState) return true;
@@ -461,18 +158,6 @@ public class ToggleAccessibilityService extends AccessibilityService {
             AccessibilityNodeInfo child = parent.getChild(i);
             if (child != null && child.getText() != null) {
                 String text = child.getText().toString().toLowerCase();
-
-                boolean lookingForAirplane = false;
-                for (String key : keywords) {
-                    if (key.toLowerCase().contains("airplane") || key.toLowerCase().contains("flight")) {
-                        lookingForAirplane = true;
-                        break;
-                    }
-                }
-
-                if (lookingForAirplane && (text.contains("wi-fi") || text.contains("wifi") || text.contains("wlan"))) {
-                    return false;
-                }
 
                 for (String key : keywords) {
                     if (text.contains(key.toLowerCase())) return true;
